@@ -48,7 +48,12 @@ const movieSchema = new mongoose.Schema(
       max: 1000,
       required: true,
     },
-
+    totalSeats: {
+      type: Number,
+      min: 0,
+      default: 100,
+      required: true,
+    },
     availableSeats: {
       type: Number,
       min: 0,

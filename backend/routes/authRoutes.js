@@ -24,6 +24,6 @@ router.post("/logout", logout);
 router.put("/change-profile", protect, changeProfile);
 router.put("/change-password", protect, changePassword);
 
-router.post("/forget-password", forgetPassword);
-router.post("/reset-password/:token", resetPassword);
+router.put("/forget-password", forgetPassword);
+router.put("/reset-password/:token", resetPassword);
 export default router;

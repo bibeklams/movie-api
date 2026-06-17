@@ -153,7 +153,7 @@ export const changePassword = async (req, res, next) => {
     const user = await User.findById(req.user._id);
 
     if (!user) {
-      throwError("No user found", 403);
+      throwError("No user found", 404);
     }
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
@@ -198,7 +198,7 @@ export const changeProfile = async (req, res, next) => {
       throwError("Email already exists", 400);
     }
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id).select("-password");
 
     if (!user) {
       throwError("No user found", 404);
@@ -212,10 +212,7 @@ export const changeProfile = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Profile updated successfully",
-      user: {
-        name: user.name,
-        email: user.email,
-      },
+      user,
     });
   } catch (error) {
     next(error);
@@ -232,11 +229,28 @@ export const forgetPassword = async (req, res, next) => {
       throwError("no user found", 404);
     }
     const resetToken = generateResetToken(user);
-    const resetUrl = `http://localhost:5173/api/reset-password/${resetToken}`;
+    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
     const html = `
-  <h2>Password Reset</h2>
-  <p>Click the link below to reset your password:</p>
-  <a href="${resetUrl}">Reset Password</a>
+<div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:40px;">
+  <div style="max-width:500px; margin:auto; background:white; padding:30px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); text-align:center;">
+
+    <h2 style="color:#333; margin-bottom:10px;">Password Reset</h2>
+
+    <p style="color:#555; font-size:15px; line-height:1.5;">
+      We received a request to reset your password. Click the button below to continue.
+    </p>
+
+    <a href="${resetUrl}" 
+       style="display:inline-block; margin-top:20px; padding:12px 24px; background:#2563eb; color:white; text-decoration:none; border-radius:6px; font-weight:bold;">
+      Reset Password
+    </a>
+
+    <p style="margin-top:25px; font-size:12px; color:#888;">
+      If you didn’t request this, you can safely ignore this email.
+    </p>
+
+  </div>
+</div>
 `;
     await sendEmail(user.email, "Password Reset", html);
     res.status(200).json({

@@ -1,4 +1,5 @@
 import Movie from "../models/Movie.js";
+import Booking from "../models/Booking.js";
 import { throwError } from "../utils/errorHandler.js";
 import cloudinary from "../config/cloudinary.js";
 import { uploadToCloudinary } from "../utils/cloudinaryHandler.js";
@@ -69,9 +70,17 @@ export const getSingleMovie = async (req, res, next) => {
     if (!movie) {
       throwError("No movie found", 404);
     }
+
+    const bookings = await Booking.find({
+      movie: movie._id,
+    });
+
+    const bookedSeats = bookings.flatMap((booking) => booking.bookedSeats);
+
     res.status(200).json({
       success: true,
       movie,
+      bookedSeats,
     });
   } catch (error) {
     next(error);
